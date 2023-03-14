@@ -73,11 +73,11 @@ select * from portfolio_pages where (data->>'wordpress-pagetypes')::jsonb ?|	arr
 get the plaintext of scraped posts
 
 ```sql
-select data->'post-content'->'text' from portfolio_pages where (data->>'wordpress-pagetypes')::jsonb ?|	array['single', 'page'] and json_typeof(data->'post-content') != 'null' and json_typeof(data->'post-content'->'tree') != 'null';
+select data->'post-content'->'text' as text from portfolio_pages where (data->>'wordpress-pagetypes')::jsonb ?|	array['single', 'page'] and json_typeof(data->'post-content') != 'null' and json_typeof(data->'post-content'->'tree') != 'null';
 ```
 
 get the title, description and open graph image of scraped posts
 
 ```sql
-select data->>'title', data->>'description', data->og->image->>'imageValue' from portfolio_pages where (data->>'wordpress-pagetypes')::jsonb ?|	array['single', 'page'] and json_typeof(data->'post-content') != 'null' and json_typeof(data->'post-content'->'tree') != 'null';
+select data->>'title' as title, data->>'description' as description, data->'og'->'image'->'imageValue' as og_image from portfolio_pages where (data->>'wordpress-pagetypes')::jsonb ?|	array['single', 'page'] and json_typeof(data->'post-content') != 'null' and json_typeof(data->'post-content'->'tree') != 'null';
 ```
