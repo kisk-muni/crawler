@@ -63,7 +63,7 @@ router.addDefaultHandler(
 router.addHandler(
   "wordpress",
   async ({
-    page,
+    // page,
     request,
     enqueueLinks,
     // saveSnapshot,
@@ -118,7 +118,11 @@ router.addHandler(
       postContent.tree = content.length
         ? parsePostContent(content[0] as unknown as CustomElement, postContent)
         : null;
-
+    if (postContent.text !== null) {
+      postContent.aggregate.charactersCount = postContent.text.length;
+      const words = postContent.text?.match(/\p{L}+/gu);
+      postContent.aggregate.wordsCount = words?.length || null;
+    }
     const data = {
       ...meta,
       "wordpress-pagetypes": pageTypes,
@@ -131,7 +135,7 @@ router.addHandler(
     });
 
     // hide ads and popups
-    try {
+    /* try {
       await page.addStyleTag({
         content: `
         html { margin-top: 0!important; scroll-padding-top: 0!important; }
@@ -144,7 +148,7 @@ router.addHandler(
     } catch (error) {
       console.log("Unable to add style tag.");
     }
-    const key = request.url.replace(/[:/]/g, "_");
+    const key = request.url.replace(/[:/]/g, "_"); */
 
     // save screenshot and html
     // await saveSnapshot({ key, saveHtml: true });
@@ -153,7 +157,16 @@ router.addHandler(
       selector: "a",
       label: request.label,
       userData: request.userData,
-      exclude: ["wp-admin", "wp-login.php"],
+      exclude: [
+        /\/wp-admin\//,
+        /\/wp-login\.php/,
+        /\/wp-content\//,
+        /\/wp-includes\//,
+        /\?share=/,
+        /\?like_comment=/,
+        /\?replytocom=/,
+        /\?like_comment=/,
+      ],
     });
   }
 );

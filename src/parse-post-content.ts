@@ -30,7 +30,10 @@ export default function parsePostContent(
     postContent.aggregate.iframes.push(attribs.src);
   if (tagName === "img" && attribs?.src)
     postContent.aggregate.iframes.push(attribs.src);
-  if (type === "text") postContent.text += (el as unknown as Text).data;
+  if (type === "text" && (el as unknown as Text).data != null) {
+    if (postContent.text === null) postContent.text = "";
+    postContent.text += (el as unknown as Text).data.trim();
+  }
   return {
     tagName,
     type,
