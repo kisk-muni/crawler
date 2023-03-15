@@ -139,14 +139,15 @@ select
     where (
       data->>'wordpress-pagetypes')::jsonb ?&	array['single']
       and json_typeof(data->'post-content') != 'null'
-      and json_typeof(data->'post-content'->'tree') = 'null'
-    ) as single_without_tree,
+      and json_typeof(data->'post-content'->'tree') != 'null'
+    ) as single_with_tree,
   sum(1) filter (
     where (
       data->>'wordpress-pagetypes')::jsonb ?&	array['single']
+      and json_typeof(data->'published-at') != 'null'
       and json_typeof(data->'post-content') != 'null'
       and json_typeof(data->'post-content'->'tree') != 'null'
-    ) as single_with_tree,
+    ) as single_with_tree_published_at,
   sum(1) filter (
     where (
       data->>'wordpress-pagetypes')::jsonb ?&	array['page']
@@ -158,7 +159,14 @@ select
       data->>'wordpress-pagetypes')::jsonb ?&	array['page']
       and json_typeof(data->'post-content') != 'null'
       and json_typeof(data->'post-content'->'tree') != 'null'
-    ) as page_with_tree
+    ) as page_with_tree,
+    sum(1) filter (
+    where (
+      data->>'wordpress-pagetypes')::jsonb ?&	array['page']
+      and json_typeof(data->'published-at') != 'null'
+      and json_typeof(data->'post-content') != 'null'
+      and json_typeof(data->'post-content'->'tree') != 'null'
+    ) as with_with_tree_published_at
 from
   portfolio_pages
 ```
