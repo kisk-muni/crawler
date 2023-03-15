@@ -48,6 +48,8 @@ type Data = {
   description: string | null;
   keywords: string[];
   og: Dictionary<OpenGraphResult>;
+  "published-at" : string | null;                         // e.g. '2023-01-27T14:02:16.000Z' (ISO 8601)
+  "updated-at" : string | null;                           // e.g. '2023-01-27T14:02:16.000Z' (ISO 8601)
 }
 
 type PostContent = {
