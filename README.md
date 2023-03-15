@@ -81,3 +81,54 @@ get the title, description and open graph image of scraped posts
 ```sql
 select data->>'title' as title, data->>'description' as description, data->'og'->'image'->'imageValue' as og_image from portfolio_pages where (data->>'wordpress-pagetypes')::jsonb ?|	array['single', 'page'] and json_typeof(data->'post-content') != 'null' and json_typeof(data->'post-content'->'tree') != 'null';
 ```
+
+get the number of posts with and without parsed post-content like below
+
+| total_crawled | total_single | total_page | single_without_tree | single_with_tree | page_without_tree | page_with_tree |
+| ------------- | ------------ | ---------- | ------------------- | ---------------- | ----------------- | -------------- |
+| 3889          | 1536         | 472        | 218                 | 1318             | 51                | 421            |
+
+```sql
+select
+  count(*) as total_crawled,
+  sum(1) filter (
+    where (
+      data->>'wordpress-pagetypes')::jsonb ?&	array['single']
+    ) as total_single,
+  sum(1) filter (
+    where (
+      data->>'wordpress-pagetypes')::jsonb ?&	array['page']
+    ) as total_page,
+  sum(1) filter (
+    where (
+      data->>'wordpress-pagetypes')::jsonb ?&	array['single']
+      and json_typeof(data->'post-content') != 'null'
+      and json_typeof(data->'post-content'->'tree') = 'null'
+    ) as single_without_tree,
+  sum(1) filter (
+    where (
+      data->>'wordpress-pagetypes')::jsonb ?&	array['single']
+      and json_typeof(data->'post-content') != 'null'
+      and json_typeof(data->'post-content'->'tree') = 'null'
+    ) as single_without_tree,
+  sum(1) filter (
+    where (
+      data->>'wordpress-pagetypes')::jsonb ?&	array['single']
+      and json_typeof(data->'post-content') != 'null'
+      and json_typeof(data->'post-content'->'tree') != 'null'
+    ) as single_with_tree,
+  sum(1) filter (
+    where (
+      data->>'wordpress-pagetypes')::jsonb ?&	array['page']
+      and json_typeof(data->'post-content') != 'null'
+      and json_typeof(data->'post-content'->'tree') = 'null'
+    ) as page_without_tree,
+  sum(1) filter (
+    where (
+      data->>'wordpress-pagetypes')::jsonb ?&	array['page']
+      and json_typeof(data->'post-content') != 'null'
+      and json_typeof(data->'post-content'->'tree') != 'null'
+    ) as page_with_tree
+from
+  portfolio_pages
+```
