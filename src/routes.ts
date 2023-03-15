@@ -92,6 +92,7 @@ router.addHandler(
       "search",
     ];
 
+    // filter body classes to get page only the allowed page type classes
     const pageTypes =
       $("body")
         .attr("class")
@@ -99,8 +100,8 @@ router.addHandler(
         .filter((c) => possiblePageTypes.includes(c)) || [];
     const isSingle = pageTypes.includes("single");
     const isPage = pageTypes.includes("page");
-    const meta = await getMeta($, request);
-    const entry = await getEntry(request);
+
+    // initialize post content obj to be filled later and stored as scraped data
     let postContent: PostContent | undefined = {
       text: null,
       aggregate: {
@@ -113,22 +114,46 @@ router.addHandler(
       },
       tree: null,
     };
-    const content = $(".entry-content");
+
+    // wordpress post content may have one of two classes
+    let content = $(".entry-content");
+    if (!content.length) content = $(".post-content");
+
+    // parse post html into simplified tree
     if ((isSingle || isPage) && content)
       postContent.tree = content.length
         ? parsePostContent(content[0] as unknown as CustomElement, postContent)
         : null;
+
+    // get rest of aggregated data
     if (postContent.text !== null) {
       postContent.aggregate.charactersCount = postContent.text.length;
       const words = postContent.text?.match(/\p{L}+/gu);
       postContent.aggregate.wordsCount = words?.length || null;
     }
+
+    const meta = await getMeta($, request);
+    const entry = await getEntry(request);
+
+    const published = $("meta[property='article:published_time']")
+      .attr("content")
+      ?.trim();
+    const updated = $("meta[property='article:modified_time']")
+      .attr("content")
+      ?.trim();
+
+    // merge all scraped data into one object
     const data = {
       ...meta,
+      "published-at": published
+        ? new Date(published).toISOString()
+        : null || null,
+      "updated-at": updated ? new Date(updated).toISOString() : null || null,
       "wordpress-pagetypes": pageTypes,
       "post-content": postContent,
     };
-    // save metadata
+
+    // save scraped data
     await Dataset.pushData({
       data,
       ...entry,
@@ -155,8 +180,10 @@ router.addHandler(
 
     await enqueueLinks({
       selector: "a",
+      // pass the same label and user data to the next crawl
       label: request.label,
       userData: request.userData,
+      // filter out links that redirect to other domains, admin-only pages, etc.
       exclude: [
         /\/wp-admin\//,
         /\/wp-login\.php/,

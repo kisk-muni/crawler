@@ -2,6 +2,26 @@
 
 Crawler browses the student portfolio websites acting as user and stores the scraped data to the database for the research purposes.
 
+## Get started
+
+install dependencies
+
+```bash
+npm i
+```
+
+start crawl
+
+```bash
+npm run start
+```
+
+continue last crawl
+
+```bash
+CRAWLEE_PURGE_ON_START=0 npm start
+```
+
 ## Accessing scraped data
 
 Crawler stores data to `portfolio_pages` table in our Supabase Postgres database.
@@ -82,11 +102,21 @@ get the title, description and open graph image of scraped posts
 select data->>'title' as title, data->>'description' as description, data->'og'->'image'->'imageValue' as og_image from portfolio_pages where (data->>'wordpress-pagetypes')::jsonb ?|	array['single', 'page'] and json_typeof(data->'post-content') != 'null' and json_typeof(data->'post-content'->'tree') != 'null';
 ```
 
-get the number of posts with and without parsed post-content like below
+get the number of posts with and without parsed post-content
 
-| total_crawled | total_single | total_page | single_without_tree | single_with_tree | page_without_tree | page_with_tree |
-| ------------- | ------------ | ---------- | ------------------- | ---------------- | ----------------- | -------------- |
-| 3889          | 1536         | 472        | 218                 | 1318             | 51                | 421            |
+below are the stats from last crawl
+
+| metric                        | count |
+| ----------------------------- | ----- |
+| total_crawled                 | 3837  |
+| total_single                  | 1537  |
+| total_page                    | 472   |
+| single_without_tree           | 0     |
+| single_with_tree              | 1537  |
+| single_with_tree_published_at | 1442  |
+| page_without_tree             | 16    |
+| page_with_tree                | 456   |
+| with_with_tree_published_at   | 368   |
 
 ```sql
 select
