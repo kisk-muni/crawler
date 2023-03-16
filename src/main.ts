@@ -24,8 +24,8 @@ const crawler = new PlaywrightCrawler({
   requestHandler: router,
 
   // stop crawling after several pages
-  maxRequestsPerCrawl:
-    process.env.environment !== "production" ? 600 : undefined,
+  /*   maxRequestsPerCrawl:
+    process.env.environment !== "production" ? 600 : undefined, */
 
   // called if the page processing failed more than maxRequestRetries+1 times.
   failedRequestHandler({ request, log }) {
@@ -43,7 +43,13 @@ await crawler.run();
 
 const dataset = await Dataset.open();
 await KeyValueStore.setValue("OUTPUT", (await dataset.getData()).items);
-const portfolioPages = (await dataset.getData()).items;
+// remove items with duplicate url
+const portfolioPages = (await dataset.getData()).items.filter(
+  (item, index, array) => array.findIndex((i) => i.url === item.url) === index
+);
+console.log(`Crawler finished in ${(performance.now() - start) / 1000} s.`);
+
+console.log(`Upserting scraped data to database.`);
 
 // bulk update the database
 // data attributes names are transformed into snake_case from camelCase automatically
@@ -54,5 +60,6 @@ await sql`
       data = excluded.data, updated_at = now()
 `;
 
-console.log(`Crawler finished in ${(performance.now() - start) / 1000} s.`);
-process.exit(0);
+console.log(`Database updated.`);
+
+process.exit();

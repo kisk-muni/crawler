@@ -4,23 +4,15 @@ import {
   parseOpenGraph,
   Request,
 } from "crawlee";
-import parsePostContent, { CustomElement } from "./parse-post-content.js";
+import parsePostContent from "./parse-post-content.js";
+import {
+  PostContent,
+  SimplifiedElement,
+  Data,
+  wpPageTypes,
+  WPPageType,
+} from "./types.js";
 import { CheerioAPI } from "cheerio";
-
-export type PostContentAggregate = {
-  charactersCount: number | null;
-  wordsCount: number | null;
-  links: string[];
-  tagsCount: { [key: string]: number };
-  images: string[];
-  iframes: string[];
-};
-
-export type PostContent = {
-  text: string | null;
-  aggregate: PostContentAggregate;
-  tree: CustomElement | null;
-};
 
 const router = createPlaywrightRouter();
 
@@ -76,28 +68,12 @@ router.addHandler(
     // wordpress pages have a body class that indicates the page type
     // we will detect it to save the page type as a metadata
     // docs: https://developer.wordpress.org/reference/functions/get_body_class/
-    const possiblePageTypes = [
-      "home",
-      "blog",
-      "privacy-policy",
-      "date",
-      "paged",
-      "attachment",
-      "error404",
-      "category",
-      "tag",
-      "single",
-      "page",
-      "archive",
-      "search",
-    ];
-
     // filter body classes to get page only the allowed page type classes
-    const pageTypes =
-      $("body")
-        .attr("class")
-        ?.split(" ")
-        .filter((c) => possiblePageTypes.includes(c)) || [];
+    const pageTypes = ($("body")
+      .attr("class")
+      ?.split(" ")
+      .filter((c) => (wpPageTypes as unknown as string[]).includes(c)) ||
+      []) as unknown as WPPageType[];
     const isSingle = pageTypes.includes("single");
     const isPage = pageTypes.includes("page");
 
@@ -122,7 +98,10 @@ router.addHandler(
     // parse post html into simplified tree
     if ((isSingle || isPage) && content)
       postContent.tree = content.length
-        ? parsePostContent(content[0] as unknown as CustomElement, postContent)
+        ? parsePostContent(
+            content[0] as unknown as SimplifiedElement,
+            postContent
+          )
         : null;
 
     // get rest of aggregated data
@@ -143,7 +122,7 @@ router.addHandler(
       ?.trim();
 
     // merge all scraped data into one object
-    const data = {
+    const data: Data = {
       ...meta,
       "published-at": published
         ? new Date(published).toISOString()

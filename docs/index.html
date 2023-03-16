@@ -1,0 +1,172 @@
+<!DOCTYPE html><html class="default" lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>crawler</title><meta name="description" content="Documentation for crawler"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script async src="assets/search.js" id="search-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os"</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container">
+<div class="table-cell" id="tsd-search" data-base=".">
+<div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M15.7824 13.833L12.6666 10.7177C12.5259 10.5771 12.3353 10.499 12.1353 10.499H11.6259C12.4884 9.39596 13.001 8.00859 13.001 6.49937C13.001 2.90909 10.0914 0 6.50048 0C2.90959 0 0 2.90909 0 6.49937C0 10.0896 2.90959 12.9987 6.50048 12.9987C8.00996 12.9987 9.39756 12.4863 10.5008 11.6239V12.1332C10.5008 12.3332 10.5789 12.5238 10.7195 12.6644L13.8354 15.7797C14.1292 16.0734 14.6042 16.0734 14.8948 15.7797L15.7793 14.8954C16.0731 14.6017 16.0731 14.1267 15.7824 13.833ZM6.50048 10.499C4.29094 10.499 2.50018 8.71165 2.50018 6.49937C2.50018 4.29021 4.28781 2.49976 6.50048 2.49976C8.71001 2.49976 10.5008 4.28708 10.5008 6.49937C10.5008 8.70852 8.71314 10.499 6.50048 10.499Z" fill="var(--color-text)"></path></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div>
+<div class="field">
+<div id="tsd-toolbar-links"></div></div>
+<ul class="results">
+<li class="state loading">Preparing search index...</li>
+<li class="state failure">The search index is not available</li></ul><a href="index.html" class="title">crawler</a></div>
+<div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="2" fill="var(--color-text)"></rect><rect x="1" y="7" width="14" height="2" fill="var(--color-text)"></rect><rect x="1" y="11" width="14" height="2" fill="var(--color-text)"></rect></svg></a></div></div></header>
+<div class="container container-main">
+<div class="col-8 col-content">
+<div class="tsd-page-title">
+<h2>crawler</h2></div>
+<div class="tsd-panel tsd-typography">
+<a href="#crawler" id="crawler" style="color: inherit; text-decoration: none;">
+  <h1>crawler</h1>
+</a>
+<p>Crawler browses the student portfolio websites acting as user and stores the scraped data to the database for the research purposes.</p>
+
+<a href="#get-started" id="get-started" style="color: inherit; text-decoration: none;">
+  <h2>Get started</h2>
+</a>
+<p>install dependencies</p>
+<pre><code class="language-bash"><span class="hl-0">npm </span><span class="hl-1">i</span>
+</code></pre>
+<p>start crawl</p>
+<pre><code class="language-bash"><span class="hl-0">npm </span><span class="hl-1">run</span><span class="hl-0"> </span><span class="hl-1">start</span>
+</code></pre>
+<p>continue last crawl</p>
+<pre><code class="language-bash"><span class="hl-2">CRAWLEE_PURGE_ON_START</span><span class="hl-0">=</span><span class="hl-3">0</span><span class="hl-0"> npm start</span>
+</code></pre>
+
+<a href="#accessing-scraped-data" id="accessing-scraped-data" style="color: inherit; text-decoration: none;">
+  <h2>Accessing scraped data</h2>
+</a>
+<p>Crawler stores data to <code>portfolio_pages</code> table in our Supabase Postgres database.</p>
+<table>
+<thead>
+<tr>
+<th>column</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>url</td>
+<td>crawled url used as unique key</td>
+</tr>
+<tr>
+<td>data</td>
+<td>scraped data in jsonb</td>
+</tr>
+<tr>
+<td>created_at</td>
+<td>timestamp of first creation</td>
+</tr>
+<tr>
+<td>portfolio_id</td>
+<td>uuid of the portfolio</td>
+</tr>
+<tr>
+<td>updated_at</td>
+<td>timestamp of last update (last crawl ended)</td>
+</tr>
+</tbody></table>
+
+<a href="#scraped-data-structure" id="scraped-data-structure" style="color: inherit; text-decoration: none;">
+  <h3>Scraped data structure</h3>
+</a>
+<p>The scraped data are stored in jsonb format, which is a json data type
+optimized for storing and querying data in json format.
+The data structure is low-key defined bellow.</p>
+<pre><code><span class="hl-4">type</span><span class="hl-0"> </span><span class="hl-5">Data</span><span class="hl-0"> = {</span><br/><span class="hl-0">  </span><span class="hl-1">&quot;wordpress-pagetypes&quot;</span><span class="hl-0">: </span><span class="hl-5">string</span><span class="hl-0">[];                         </span><span class="hl-6">// e.g. [&#39;single&#39;, &#39;home&#39;, &#39;archive&#39;, &#39;page&#39;], full list: https://github.com/kisk-muni/crawler/blob/b85a93a8fda67b1e7a8402bfdb30ed8e610a71f5/src/routes.ts#L79</span><br/><span class="hl-0">  </span><span class="hl-1">&quot;post-content&quot;</span><span class="hl-0">: </span><span class="hl-5">PostContent</span><span class="hl-0"> | </span><span class="hl-5">undefined</span><span class="hl-0">;</span><br/><span class="hl-0">  </span><span class="hl-2">title</span><span class="hl-0">: </span><span class="hl-5">string</span><span class="hl-0"> | </span><span class="hl-5">null</span><span class="hl-0">;</span><br/><span class="hl-0">  </span><span class="hl-2">description</span><span class="hl-0">: </span><span class="hl-5">string</span><span class="hl-0"> | </span><span class="hl-5">null</span><span class="hl-0">;</span><br/><span class="hl-0">  </span><span class="hl-2">keywords</span><span class="hl-0">: </span><span class="hl-5">string</span><span class="hl-0">[];</span><br/><span class="hl-0">  </span><span class="hl-2">og</span><span class="hl-0">: </span><span class="hl-5">Dictionary</span><span class="hl-0">&lt;</span><span class="hl-5">OpenGraphResult</span><span class="hl-0">&gt;;</span><br/><span class="hl-0">  </span><span class="hl-1">&quot;published-at&quot;</span><span class="hl-0"> : </span><span class="hl-5">string</span><span class="hl-0"> | </span><span class="hl-5">null</span><span class="hl-0">;                         </span><span class="hl-6">// e.g. &#39;2023-01-27T14:02:16.000Z&#39; (ISO 8601)</span><br/><span class="hl-0">  </span><span class="hl-1">&quot;updated-at&quot;</span><span class="hl-0"> : </span><span class="hl-5">string</span><span class="hl-0"> | </span><span class="hl-5">null</span><span class="hl-0">;                           </span><span class="hl-6">// e.g. &#39;2023-01-27T14:02:16.000Z&#39; (ISO 8601)</span><br/><span class="hl-0">}</span><br/><br/><span class="hl-4">type</span><span class="hl-0"> </span><span class="hl-5">PostContent</span><span class="hl-0"> = {</span><br/><span class="hl-0">  </span><span class="hl-2">text</span><span class="hl-0">: </span><span class="hl-5">string</span><span class="hl-0"> | </span><span class="hl-5">null</span><span class="hl-0">;</span><br/><span class="hl-0">  </span><span class="hl-2">aggregate</span><span class="hl-0">: </span><span class="hl-5">PostContentAggregate</span><span class="hl-0">;</span><br/><span class="hl-0">  </span><span class="hl-2">tree</span><span class="hl-0">: </span><span class="hl-5">CustomElement</span><span class="hl-0"> | </span><span class="hl-5">null</span><span class="hl-0">;</span><br/><span class="hl-0">}</span><br/><br/><span class="hl-4">type</span><span class="hl-0"> </span><span class="hl-5">PostContentAggregate</span><span class="hl-0"> = {</span><br/><span class="hl-0">  </span><span class="hl-2">charactersCount</span><span class="hl-0">: </span><span class="hl-5">number</span><span class="hl-0"> | </span><span class="hl-5">null</span><span class="hl-0">;</span><br/><span class="hl-0">  </span><span class="hl-2">wordsCount</span><span class="hl-0">: </span><span class="hl-5">number</span><span class="hl-0"> | </span><span class="hl-5">null</span><span class="hl-0">;</span><br/><span class="hl-0">  </span><span class="hl-2">links</span><span class="hl-0">: </span><span class="hl-5">string</span><span class="hl-0">[];</span><br/><span class="hl-0">  </span><span class="hl-2">tagsCount</span><span class="hl-0">: { [</span><span class="hl-2">key</span><span class="hl-0">: </span><span class="hl-5">string</span><span class="hl-0">]: </span><span class="hl-5">number</span><span class="hl-0"> };                     </span><span class="hl-6">// e.g. { p: 6, h1: 1, h2: 3, a: 1}</span><br/><span class="hl-0">  </span><span class="hl-2">images</span><span class="hl-0">: </span><span class="hl-5">string</span><span class="hl-0">[];</span><br/><span class="hl-0">  </span><span class="hl-2">iframes</span><span class="hl-0">: </span><span class="hl-5">string</span><span class="hl-0">[];</span><br/><span class="hl-0">};</span><br/><br/><span class="hl-4">type</span><span class="hl-0"> </span><span class="hl-5">CustomElement</span><span class="hl-0"> = {</span><br/><span class="hl-0">  </span><span class="hl-2">tagName</span><span class="hl-0">?: </span><span class="hl-5">string</span><span class="hl-0"> | </span><span class="hl-5">undefined</span><span class="hl-0">;                             </span><span class="hl-6">// e.g. &#39;p&#39;, &#39;h1&#39;, &#39;img&#39;, &#39;a&#39;</span><br/><span class="hl-0">  </span><span class="hl-2">type</span><span class="hl-0">?: </span><span class="hl-1">&#39;tag&#39;</span><span class="hl-0"> | </span><span class="hl-1">&#39;text&#39;</span><span class="hl-0"> | </span><span class="hl-1">&#39;script&#39;</span><span class="hl-0"> | </span><span class="hl-1">&#39;style&#39;</span><span class="hl-0"> | </span><span class="hl-5">undefined</span><span class="hl-0">;</span><br/><span class="hl-0">  </span><span class="hl-2">text</span><span class="hl-0">?: </span><span class="hl-5">string</span><span class="hl-0"> | </span><span class="hl-5">undefined</span><span class="hl-0">;                                </span><span class="hl-6">// e.g. &#39;Hello World&#39;</span><br/><span class="hl-0">  </span><span class="hl-2">attribs</span><span class="hl-0">: {                                                </span><span class="hl-6">// e.g. { src: &#39;https://example.com/image.jpg&#39;, alt: &#39;example image&#39; }</span><br/><span class="hl-0">      [</span><span class="hl-2">key</span><span class="hl-0">: </span><span class="hl-5">string</span><span class="hl-0">]: </span><span class="hl-5">string</span><span class="hl-0">;</span><br/><span class="hl-0">  };</span><br/><span class="hl-0">  </span><span class="hl-2">children</span><span class="hl-0">?: </span><span class="hl-5">CustomElement</span><span class="hl-0">[] | </span><span class="hl-5">undefined</span><span class="hl-0">;</span><br/><span class="hl-0">}</span><br/>
+</code></pre>
+
+<a href="#querying-the-data" id="querying-the-data" style="color: inherit; text-decoration: none;">
+  <h3>Querying the data</h3>
+</a>
+<p>Crawled data are stored as jsonb type in the postgres database.
+There is variety of <a href="https://www.postgresql.org/docs/9.4/functions-json.html">build-in functions and operators</a> to query the json or even index its parameters.</p>
+
+<a href="#examples" id="examples" style="color: inherit; text-decoration: none;">
+  <h4>Examples</h4>
+</a>
+<p>get all pages with successfully parsed post-content (the where clause excludes pages such as 404, search, archive, tag etc.)</p>
+<pre><code class="language-sql"><span class="hl-4">select</span><span class="hl-0"> * </span><span class="hl-4">from</span><span class="hl-0"> portfolio_pages </span><span class="hl-4">where</span><span class="hl-0"> (</span><span class="hl-4">data</span><span class="hl-0">-&gt;&gt;</span><span class="hl-1">&#39;wordpress-pagetypes&#39;</span><span class="hl-0">)::jsonb ?|	</span><span class="hl-4">array</span><span class="hl-0">[&#39;single&#39;, &#39;page&#39;] </span><span class="hl-4">and</span><span class="hl-0"> json_typeof(</span><span class="hl-4">data</span><span class="hl-0">-&gt;</span><span class="hl-1">&#39;post-content&#39;</span><span class="hl-0">) != </span><span class="hl-1">&#39;null&#39;</span><span class="hl-0"> </span><span class="hl-4">and</span><span class="hl-0"> json_typeof(</span><span class="hl-4">data</span><span class="hl-0">-&gt;</span><span class="hl-1">&#39;post-content&#39;</span><span class="hl-0">-&gt;</span><span class="hl-1">&#39;tree&#39;</span><span class="hl-0">) != </span><span class="hl-1">&#39;null&#39;</span><span class="hl-0">;</span>
+</code></pre>
+<p>get the plaintext of scraped posts</p>
+<pre><code class="language-sql"><span class="hl-4">select</span><span class="hl-0"> </span><span class="hl-4">data</span><span class="hl-0">-&gt;</span><span class="hl-1">&#39;post-content&#39;</span><span class="hl-0">-&gt;</span><span class="hl-1">&#39;text&#39;</span><span class="hl-0"> </span><span class="hl-4">as</span><span class="hl-0"> </span><span class="hl-4">text</span><span class="hl-0"> </span><span class="hl-4">from</span><span class="hl-0"> portfolio_pages </span><span class="hl-4">where</span><span class="hl-0"> (</span><span class="hl-4">data</span><span class="hl-0">-&gt;&gt;</span><span class="hl-1">&#39;wordpress-pagetypes&#39;</span><span class="hl-0">)::jsonb ?|	</span><span class="hl-4">array</span><span class="hl-0">[&#39;single&#39;, &#39;page&#39;] </span><span class="hl-4">and</span><span class="hl-0"> json_typeof(</span><span class="hl-4">data</span><span class="hl-0">-&gt;</span><span class="hl-1">&#39;post-content&#39;</span><span class="hl-0">) != </span><span class="hl-1">&#39;null&#39;</span><span class="hl-0"> </span><span class="hl-4">and</span><span class="hl-0"> json_typeof(</span><span class="hl-4">data</span><span class="hl-0">-&gt;</span><span class="hl-1">&#39;post-content&#39;</span><span class="hl-0">-&gt;</span><span class="hl-1">&#39;tree&#39;</span><span class="hl-0">) != </span><span class="hl-1">&#39;null&#39;</span><span class="hl-0">;</span>
+</code></pre>
+<p>get the title, description and open graph image of scraped posts</p>
+<pre><code class="language-sql"><span class="hl-4">select</span><span class="hl-0"> </span><span class="hl-4">data</span><span class="hl-0">-&gt;&gt;</span><span class="hl-1">&#39;title&#39;</span><span class="hl-0"> </span><span class="hl-4">as</span><span class="hl-0"> title, </span><span class="hl-4">data</span><span class="hl-0">-&gt;&gt;</span><span class="hl-1">&#39;description&#39;</span><span class="hl-0"> </span><span class="hl-4">as</span><span class="hl-0"> </span><span class="hl-4">description</span><span class="hl-0">, </span><span class="hl-4">data</span><span class="hl-0">-&gt;</span><span class="hl-1">&#39;og&#39;</span><span class="hl-0">-&gt;</span><span class="hl-1">&#39;image&#39;</span><span class="hl-0">-&gt;</span><span class="hl-1">&#39;imageValue&#39;</span><span class="hl-0"> </span><span class="hl-4">as</span><span class="hl-0"> og_image </span><span class="hl-4">from</span><span class="hl-0"> portfolio_pages </span><span class="hl-4">where</span><span class="hl-0"> (</span><span class="hl-4">data</span><span class="hl-0">-&gt;&gt;</span><span class="hl-1">&#39;wordpress-pagetypes&#39;</span><span class="hl-0">)::jsonb ?|	</span><span class="hl-4">array</span><span class="hl-0">[&#39;single&#39;, &#39;page&#39;] </span><span class="hl-4">and</span><span class="hl-0"> json_typeof(</span><span class="hl-4">data</span><span class="hl-0">-&gt;</span><span class="hl-1">&#39;post-content&#39;</span><span class="hl-0">) != </span><span class="hl-1">&#39;null&#39;</span><span class="hl-0"> </span><span class="hl-4">and</span><span class="hl-0"> json_typeof(</span><span class="hl-4">data</span><span class="hl-0">-&gt;</span><span class="hl-1">&#39;post-content&#39;</span><span class="hl-0">-&gt;</span><span class="hl-1">&#39;tree&#39;</span><span class="hl-0">) != </span><span class="hl-1">&#39;null&#39;</span><span class="hl-0">;</span>
+</code></pre>
+<p>get the number of posts with and without parsed post-content</p>
+<p>below are the stats from last crawl</p>
+<table>
+<thead>
+<tr>
+<th>metric</th>
+<th>count</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>total_crawled</td>
+<td>3837</td>
+</tr>
+<tr>
+<td>total_single</td>
+<td>1537</td>
+</tr>
+<tr>
+<td>total_page</td>
+<td>472</td>
+</tr>
+<tr>
+<td>single_without_tree</td>
+<td>0</td>
+</tr>
+<tr>
+<td>single_with_tree</td>
+<td>1537</td>
+</tr>
+<tr>
+<td>single_with_tree_published_at</td>
+<td>1442</td>
+</tr>
+<tr>
+<td>page_without_tree</td>
+<td>16</td>
+</tr>
+<tr>
+<td>page_with_tree</td>
+<td>456</td>
+</tr>
+<tr>
+<td>with_with_tree_published_at</td>
+<td>368</td>
+</tr>
+</tbody></table>
+<pre><code class="language-sql"><span class="hl-4">select</span><br/><span class="hl-0">  </span><span class="hl-7">count</span><span class="hl-0">(*) </span><span class="hl-4">as</span><span class="hl-0"> total_crawled,</span><br/><span class="hl-0">  </span><span class="hl-7">sum</span><span class="hl-0">(</span><span class="hl-3">1</span><span class="hl-0">) </span><span class="hl-4">filter</span><span class="hl-0"> (</span><br/><span class="hl-0">    </span><span class="hl-4">where</span><span class="hl-0"> (</span><br/><span class="hl-0">      </span><span class="hl-4">data</span><span class="hl-0">-&gt;&gt;</span><span class="hl-1">&#39;wordpress-pagetypes&#39;</span><span class="hl-0">)::jsonb ?&amp;	</span><span class="hl-4">array</span><span class="hl-0">[&#39;single&#39;]</span><br/><span class="hl-0">    ) </span><span class="hl-4">as</span><span class="hl-0"> total_single,</span><br/><span class="hl-0">  </span><span class="hl-7">sum</span><span class="hl-0">(</span><span class="hl-3">1</span><span class="hl-0">) </span><span class="hl-4">filter</span><span class="hl-0"> (</span><br/><span class="hl-0">    </span><span class="hl-4">where</span><span class="hl-0"> (</span><br/><span class="hl-0">      </span><span class="hl-4">data</span><span class="hl-0">-&gt;&gt;</span><span class="hl-1">&#39;wordpress-pagetypes&#39;</span><span class="hl-0">)::jsonb ?&amp;	</span><span class="hl-4">array</span><span class="hl-0">[&#39;page&#39;]</span><br/><span class="hl-0">    ) </span><span class="hl-4">as</span><span class="hl-0"> total_page,</span><br/><span class="hl-0">  </span><span class="hl-7">sum</span><span class="hl-0">(</span><span class="hl-3">1</span><span class="hl-0">) </span><span class="hl-4">filter</span><span class="hl-0"> (</span><br/><span class="hl-0">    </span><span class="hl-4">where</span><span class="hl-0"> (</span><br/><span class="hl-0">      </span><span class="hl-4">data</span><span class="hl-0">-&gt;&gt;</span><span class="hl-1">&#39;wordpress-pagetypes&#39;</span><span class="hl-0">)::jsonb ?&amp;	</span><span class="hl-4">array</span><span class="hl-0">[&#39;single&#39;]</span><br/><span class="hl-0">      </span><span class="hl-4">and</span><span class="hl-0"> json_typeof(</span><span class="hl-4">data</span><span class="hl-0">-&gt;</span><span class="hl-1">&#39;post-content&#39;</span><span class="hl-0">) != </span><span class="hl-1">&#39;null&#39;</span><br/><span class="hl-0">      </span><span class="hl-4">and</span><span class="hl-0"> json_typeof(</span><span class="hl-4">data</span><span class="hl-0">-&gt;</span><span class="hl-1">&#39;post-content&#39;</span><span class="hl-0">-&gt;</span><span class="hl-1">&#39;tree&#39;</span><span class="hl-0">) = </span><span class="hl-1">&#39;null&#39;</span><br/><span class="hl-0">    ) </span><span class="hl-4">as</span><span class="hl-0"> single_without_tree,</span><br/><span class="hl-0">  </span><span class="hl-7">sum</span><span class="hl-0">(</span><span class="hl-3">1</span><span class="hl-0">) </span><span class="hl-4">filter</span><span class="hl-0"> (</span><br/><span class="hl-0">    </span><span class="hl-4">where</span><span class="hl-0"> (</span><br/><span class="hl-0">      </span><span class="hl-4">data</span><span class="hl-0">-&gt;&gt;</span><span class="hl-1">&#39;wordpress-pagetypes&#39;</span><span class="hl-0">)::jsonb ?&amp;	</span><span class="hl-4">array</span><span class="hl-0">[&#39;single&#39;]</span><br/><span class="hl-0">      </span><span class="hl-4">and</span><span class="hl-0"> json_typeof(</span><span class="hl-4">data</span><span class="hl-0">-&gt;</span><span class="hl-1">&#39;post-content&#39;</span><span class="hl-0">) != </span><span class="hl-1">&#39;null&#39;</span><br/><span class="hl-0">      </span><span class="hl-4">and</span><span class="hl-0"> json_typeof(</span><span class="hl-4">data</span><span class="hl-0">-&gt;</span><span class="hl-1">&#39;post-content&#39;</span><span class="hl-0">-&gt;</span><span class="hl-1">&#39;tree&#39;</span><span class="hl-0">) != </span><span class="hl-1">&#39;null&#39;</span><br/><span class="hl-0">    ) </span><span class="hl-4">as</span><span class="hl-0"> single_with_tree,</span><br/><span class="hl-0">  </span><span class="hl-7">sum</span><span class="hl-0">(</span><span class="hl-3">1</span><span class="hl-0">) </span><span class="hl-4">filter</span><span class="hl-0"> (</span><br/><span class="hl-0">    </span><span class="hl-4">where</span><span class="hl-0"> (</span><br/><span class="hl-0">      </span><span class="hl-4">data</span><span class="hl-0">-&gt;&gt;</span><span class="hl-1">&#39;wordpress-pagetypes&#39;</span><span class="hl-0">)::jsonb ?&amp;	</span><span class="hl-4">array</span><span class="hl-0">[&#39;single&#39;]</span><br/><span class="hl-0">      </span><span class="hl-4">and</span><span class="hl-0"> json_typeof(</span><span class="hl-4">data</span><span class="hl-0">-&gt;</span><span class="hl-1">&#39;published-at&#39;</span><span class="hl-0">) != </span><span class="hl-1">&#39;null&#39;</span><br/><span class="hl-0">      </span><span class="hl-4">and</span><span class="hl-0"> json_typeof(</span><span class="hl-4">data</span><span class="hl-0">-&gt;</span><span class="hl-1">&#39;post-content&#39;</span><span class="hl-0">) != </span><span class="hl-1">&#39;null&#39;</span><br/><span class="hl-0">      </span><span class="hl-4">and</span><span class="hl-0"> json_typeof(</span><span class="hl-4">data</span><span class="hl-0">-&gt;</span><span class="hl-1">&#39;post-content&#39;</span><span class="hl-0">-&gt;</span><span class="hl-1">&#39;tree&#39;</span><span class="hl-0">) != </span><span class="hl-1">&#39;null&#39;</span><br/><span class="hl-0">    ) </span><span class="hl-4">as</span><span class="hl-0"> single_with_tree_published_at,</span><br/><span class="hl-0">  </span><span class="hl-7">sum</span><span class="hl-0">(</span><span class="hl-3">1</span><span class="hl-0">) </span><span class="hl-4">filter</span><span class="hl-0"> (</span><br/><span class="hl-0">    </span><span class="hl-4">where</span><span class="hl-0"> (</span><br/><span class="hl-0">      </span><span class="hl-4">data</span><span class="hl-0">-&gt;&gt;</span><span class="hl-1">&#39;wordpress-pagetypes&#39;</span><span class="hl-0">)::jsonb ?&amp;	</span><span class="hl-4">array</span><span class="hl-0">[&#39;page&#39;]</span><br/><span class="hl-0">      </span><span class="hl-4">and</span><span class="hl-0"> json_typeof(</span><span class="hl-4">data</span><span class="hl-0">-&gt;</span><span class="hl-1">&#39;post-content&#39;</span><span class="hl-0">) != </span><span class="hl-1">&#39;null&#39;</span><br/><span class="hl-0">      </span><span class="hl-4">and</span><span class="hl-0"> json_typeof(</span><span class="hl-4">data</span><span class="hl-0">-&gt;</span><span class="hl-1">&#39;post-content&#39;</span><span class="hl-0">-&gt;</span><span class="hl-1">&#39;tree&#39;</span><span class="hl-0">) = </span><span class="hl-1">&#39;null&#39;</span><br/><span class="hl-0">    ) </span><span class="hl-4">as</span><span class="hl-0"> page_without_tree,</span><br/><span class="hl-0">  </span><span class="hl-7">sum</span><span class="hl-0">(</span><span class="hl-3">1</span><span class="hl-0">) </span><span class="hl-4">filter</span><span class="hl-0"> (</span><br/><span class="hl-0">    </span><span class="hl-4">where</span><span class="hl-0"> (</span><br/><span class="hl-0">      </span><span class="hl-4">data</span><span class="hl-0">-&gt;&gt;</span><span class="hl-1">&#39;wordpress-pagetypes&#39;</span><span class="hl-0">)::jsonb ?&amp;	</span><span class="hl-4">array</span><span class="hl-0">[&#39;page&#39;]</span><br/><span class="hl-0">      </span><span class="hl-4">and</span><span class="hl-0"> json_typeof(</span><span class="hl-4">data</span><span class="hl-0">-&gt;</span><span class="hl-1">&#39;post-content&#39;</span><span class="hl-0">) != </span><span class="hl-1">&#39;null&#39;</span><br/><span class="hl-0">      </span><span class="hl-4">and</span><span class="hl-0"> json_typeof(</span><span class="hl-4">data</span><span class="hl-0">-&gt;</span><span class="hl-1">&#39;post-content&#39;</span><span class="hl-0">-&gt;</span><span class="hl-1">&#39;tree&#39;</span><span class="hl-0">) != </span><span class="hl-1">&#39;null&#39;</span><br/><span class="hl-0">    ) </span><span class="hl-4">as</span><span class="hl-0"> page_with_tree,</span><br/><span class="hl-0">    </span><span class="hl-7">sum</span><span class="hl-0">(</span><span class="hl-3">1</span><span class="hl-0">) </span><span class="hl-4">filter</span><span class="hl-0"> (</span><br/><span class="hl-0">    </span><span class="hl-4">where</span><span class="hl-0"> (</span><br/><span class="hl-0">      </span><span class="hl-4">data</span><span class="hl-0">-&gt;&gt;</span><span class="hl-1">&#39;wordpress-pagetypes&#39;</span><span class="hl-0">)::jsonb ?&amp;	</span><span class="hl-4">array</span><span class="hl-0">[&#39;page&#39;]</span><br/><span class="hl-0">      </span><span class="hl-4">and</span><span class="hl-0"> json_typeof(</span><span class="hl-4">data</span><span class="hl-0">-&gt;</span><span class="hl-1">&#39;published-at&#39;</span><span class="hl-0">) != </span><span class="hl-1">&#39;null&#39;</span><br/><span class="hl-0">      </span><span class="hl-4">and</span><span class="hl-0"> json_typeof(</span><span class="hl-4">data</span><span class="hl-0">-&gt;</span><span class="hl-1">&#39;post-content&#39;</span><span class="hl-0">) != </span><span class="hl-1">&#39;null&#39;</span><br/><span class="hl-0">      </span><span class="hl-4">and</span><span class="hl-0"> json_typeof(</span><span class="hl-4">data</span><span class="hl-0">-&gt;</span><span class="hl-1">&#39;post-content&#39;</span><span class="hl-0">-&gt;</span><span class="hl-1">&#39;tree&#39;</span><span class="hl-0">) != </span><span class="hl-1">&#39;null&#39;</span><br/><span class="hl-0">    ) </span><span class="hl-4">as</span><span class="hl-0"> with_with_tree_published_at</span><br/><span class="hl-4">from</span><br/><span class="hl-0">  portfolio_pages</span>
+</code></pre>
+</div></div>
+<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+<div class="tsd-navigation settings">
+<details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
+<h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4.93896 8.531L12 15.591L19.061 8.531L16.939 6.409L12 11.349L7.06098 6.409L4.93896 8.531Z" fill="var(--color-text)"></path></svg> Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility">
+<h4 class="uppercase">Member Visibility</h4><form>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-private" name="private"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Private</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></form></div>
+<div class="tsd-theme-toggle">
+<h4 class="uppercase">Theme</h4><select id="theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<nav class="tsd-navigation primary">
+<details class="tsd-index-accordion" open><summary class="tsd-accordion-summary">
+<h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4.93896 8.531L12 15.591L19.061 8.531L16.939 6.409L12 11.349L7.06098 6.409L4.93896 8.531Z" fill="var(--color-text)"></path></svg> Modules</h3></summary>
+<div class="tsd-accordion-details">
+<ul>
+<li class="current selected"><a href="modules.html">crawler</a>
+<ul>
+<li class="tsd-kind-module"><a href="modules/get_urls.html">get-<wbr/>urls</a></li>
+<li class="tsd-kind-module"><a href="modules/main.html">main</a></li>
+<li class="tsd-kind-module"><a href="modules/parse_post_content.html">parse-<wbr/>post-<wbr/>content</a></li>
+<li class="tsd-kind-module"><a href="modules/routes.html">routes</a></li>
+<li class="tsd-kind-module"><a href="modules/sql.html">sql</a></li>
+<li class="tsd-kind-module"><a href="modules/types.html">types</a></li></ul></li></ul></div></details></nav></div></div>
+<div class="container tsd-generator">
+<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div>
+<div class="overlay"></div><script src="assets/main.js"></script></body></html>

@@ -1,18 +1,9 @@
-import { PostContent } from "./routes.js";
-
-export type CustomElement = {
-  tagName?: string;
-  type?: string;
-  text?: string;
-  attribs: { [key: string]: string };
-  children?: CustomElement[];
-  other?: { [key: string]: any };
-};
+import { PostContent, SimplifiedElement } from "./types.js";
 
 export default function parsePostContent(
-  el: CustomElement,
+  el: SimplifiedElement,
   postContent: PostContent
-): CustomElement | null {
+): SimplifiedElement | null {
   const { tagName, type, attribs, children } = el;
   if (
     attribs?.class &&
@@ -39,8 +30,8 @@ export default function parsePostContent(
     type,
     attribs,
     text: (el as unknown as Text).data,
-    children: (children as CustomElement[])
+    children: (children as SimplifiedElement[])
       ?.map((c) => parsePostContent(c, postContent))
-      .filter((c) => c !== null) as CustomElement[],
+      .filter((c) => c !== null) as SimplifiedElement[],
   };
 }
