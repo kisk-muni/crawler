@@ -26,13 +26,17 @@ CRAWLEE_PURGE_ON_START=0 npm start
 
 Crawler stores data to `portfolio_pages` table in our Supabase Postgres database.
 
-| column       | description                                 |
-| ------------ | ------------------------------------------- |
-| url          | crawled url used as unique key              |
-| data         | scraped data in jsonb                       |
-| created_at   | timestamp of first creation                 |
-| portfolio_id | uuid of the portfolio                       |
-| updated_at   | timestamp of last update (last crawl ended) |
+| column       | description                                                                        |
+| ------------ | ---------------------------------------------------------------------------------- |
+| url          | crawled url used as unique key                                                     |
+| data         | scraped [data](https://kisk-muni.github.io/crawler/types/types.Data.html) in jsonb |
+| created_at   | timestamp of first creation                                                        |
+| portfolio_id | uuid of the portfolio                                                              |
+| updated_at   | timestamp of last update (last crawl ended)                                        |
+
+### Scraped data structure
+
+The scraped data are stored as json data structure, see its [documentation](https://kisk-muni.github.io/crawler/types/types.Data.html).
 
 ### Querying the data
 
