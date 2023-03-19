@@ -8,6 +8,12 @@ import { chromium } from "playwright-extra";
 import stealthPlugin from "puppeteer-extra-plugin-stealth";
 import sql from "./sql.js";
 
+const config = {
+  platforms: ["wordpress", "notion"],
+  upsertDB: true,
+  //saveSnapshots: false,
+};
+
 // tell playwright-extra to use the plugin (or plugins) we want
 // stealth is a plugin that makes avoid bot detection
 chromium.use(stealthPlugin());
@@ -33,7 +39,7 @@ const crawler = new PlaywrightCrawler({
   },
 });
 
-const urls = await getUrls();
+const urls = await getUrls(config.platforms);
 await crawler.addRequests(urls);
 
 const start = performance.now();
@@ -49,17 +55,17 @@ const portfolioPages = (await dataset.getData()).items.filter(
 );
 console.log(`Crawler finished in ${(performance.now() - start) / 1000} s.`);
 
-console.log(`Upserting scraped data to database.`);
-
 // bulk update the database
 // data attributes names are transformed into snake_case from camelCase automatically
-await sql`
-  insert into portfolio_pages ${sql(portfolioPages)}
-  on conflict (url)
-    do update set
-      data = excluded.data, updated_at = now()
-`;
-
-console.log(`Database updated.`);
+if (config.upsertDB) {
+  console.log(`Upserting scraped data to database.`);
+  await sql`
+    insert into portfolio_pages ${sql(portfolioPages)}
+    on conflict (url)
+      do update set
+        data = excluded.data, updated_at = now()
+  `;
+  console.log(`Database updated.`);
+}
 
 process.exit();

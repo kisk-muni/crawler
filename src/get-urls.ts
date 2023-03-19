@@ -1,9 +1,9 @@
 import { Request, RequestOptions } from "crawlee";
 import fetch from "node-fetch";
 
-export async function getUrls(): Promise<
-  (string | Request | RequestOptions)[]
-> {
+export async function getUrls(
+  platforms: string[]
+): Promise<(string | Request | RequestOptions)[]> {
   const req = await fetch(
     "https://kiggmvgmzoffneyfrvuz.supabase.co/rest/v1/portfolios?select=id,platform,url&apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpZ2dtdmdtem9mZm5leWZydnV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2Njc5MjE1NzYsImV4cCI6MTk4MzQ5NzU3Nn0.74Wy0yL0oWfA5M1koxzpswBUwAwFS8RMPpeugRaWVw4"
   );
@@ -16,7 +16,9 @@ export async function getUrls(): Promise<
 
   const data = (await req.json()) as Portfolio[];
   const urls = data
-    .filter((item) => item.url !== null && item.platform === "wordpress")
+    .filter(
+      (item) => item.url !== null && platforms.includes(item.platform as string)
+    )
     .map((item) => {
       return {
         url: item.url,

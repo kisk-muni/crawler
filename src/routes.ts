@@ -23,7 +23,11 @@ async function getEntry(request: Request) {
   };
 }
 
-async function getMeta($: CheerioAPI, _request: Request) {
+async function getMeta(
+  $: CheerioAPI,
+  _request: Request,
+  config?: { getOG: boolean }
+) {
   return {
     title: $("title").text().trim() || null,
     description: $("meta[name=description]").attr("content")?.trim() || null,
@@ -32,7 +36,7 @@ async function getMeta($: CheerioAPI, _request: Request) {
         .attr("content")
         ?.split(",")
         .map((k) => k.trim()) || [],
-    og: parseOpenGraph($),
+    og: config?.getOG ? parseOpenGraph($) : undefined,
   };
 }
 
@@ -96,13 +100,8 @@ router.addHandler(
     if (!content.length) content = $(".post-content");
 
     // parse post html into simplified tree
-    if ((isSingle || isPage) && content)
-      postContent.tree = content.length
-        ? parsePostContent(
-            content[0] as unknown as SimplifiedElement,
-            postContent
-          )
-        : null;
+    if ((isSingle || isPage) && content.length)
+      parsePostContent(content[0] as unknown as SimplifiedElement, postContent);
 
     // get rest of aggregated data
     if (postContent.text !== null) {
@@ -134,8 +133,8 @@ router.addHandler(
 
     // save scraped data
     await Dataset.pushData({
-      data,
       ...entry,
+      data,
     });
 
     // hide ads and popups
@@ -192,15 +191,74 @@ router.addHandler(
     await page.waitForSelector("a");
 
     // if notion page
-    // .notion-page-content
-    // .notion-text-block notion-column_list-block notion-toggle-block notion-image-block
+    //   .notion-page-content
+    //   .notion-text-block notion-column_list-block notion-toggle-block notion-image-block
 
     const $ = await parseWithCheerio();
     // save metadata
-    await Dataset.pushData(getMeta($, request));
+    const meta = await getMeta($, request, { getOG: false });
+    const entry = await getEntry(request);
+    // initialize post content obj to be filled later and stored as scraped data
+    let postContent: PostContent | undefined = {
+      text: null,
+      aggregate: {
+        charactersCount: null,
+        wordsCount: null,
+        links: [],
+        iframes: [],
+        images: [],
+        tagsCount: {},
+      },
+      tree: null,
+    };
+
+    // ## notion collection filter
+    // data-block-id= .notion-selectable .notion-collection_view_page-block
+    // .notion-collection-view-tab-button span
+    //
+    // ## collection body
+    // .notion-scroller .notion-collection-view-body
+    //   .notion-table-view
+    //     data-block-id= .notion-selectable .notion-collection_view_page-block
+    //
+    // ## collection view
+    // data-block-id= .notion-selectable .notion-collection_view_page-block
+    //
+    // ## table item
+    // data-block-id= .notion-selectable .notion-page-block .notion-collection-item
+    //
+
+    // ff3962ff-07d1-4d7b-8aa3-96821a02a2db
+    // ff3962ff07d14d7b8aa396821a02a2db
+
+    // locate notion page content
+    let content = $(".notion-page-content");
+
+    // parse post html into simplified tree
+    if (content.length)
+      parsePostContent(content[0] as unknown as SimplifiedElement, postContent);
+
+    // get rest of aggregated data
+    if (postContent.text !== null) {
+      postContent.aggregate.charactersCount = postContent.text.length;
+      const words = postContent.text?.match(/\p{L}+/gu);
+      postContent.aggregate.wordsCount = words?.length || null;
+    }
+
+    const data: Data = {
+      ...meta,
+      "published-at": null,
+      "updated-at": null,
+      "post-content": postContent,
+    };
+
+    await Dataset.pushData({
+      data,
+      ...entry,
+    });
 
     // hide ads and popups
-    try {
+    /*     try {
       await page.addStyleTag({
         content: `
         .notion-overlay-container { display: none!important; }
@@ -209,7 +267,7 @@ router.addHandler(
     } catch (error) {
       console.log("Unable to add style tag.");
     }
-    const key = request.url.replace(/[:/]/g, "_");
+    const key = request.url.replace(/[:/]/g, "_"); */
 
     // save screenshot and html
     // await saveSnapshot({ key, saveHtml: true });
@@ -218,6 +276,7 @@ router.addHandler(
       selector: "a",
       label: request.label,
       userData: request.userData,
+      exclude: [],
     });
   }
 );
